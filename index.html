@@ -116,7 +116,8 @@ details.more .sec:first-of-type{padding-top:10px}
 
 @media (max-width:720px){
   #panel{top:auto;left:max(8px,env(safe-area-inset-left,0px));right:max(8px,env(safe-area-inset-right,0px));width:auto;height:64%;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);transform:translateY(calc(100% + 24px))}
-  .lede,.note-loc,#hint,#legend{display:none}
+  .lede,.note-loc,#legend{display:none}
+  #hint{left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 60px);font-size:10px;line-height:1.35;letter-spacing:0}
 }
 @media (prefers-reduced-motion:reduce){ #panel{transition:none} }
 </style>
@@ -135,6 +136,7 @@ details.more .sec:first-of-type{padding-top:10px}
     <ul id="legendList"></ul>
   </details>
   <button class="pill" id="pause" aria-pressed="false">Pause traffic</button>
+  <button class="pill" id="view" aria-pressed="false">Street view</button>
 </div>
 <div id="hint" class="hud">Device placement is illustrative, not real camera locations · drag to rotate</div>
 
@@ -174,6 +176,7 @@ const IC = {
   msg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
   file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/>',
   car:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 17h6"/>',
+  map:'<path d="M14.1 4.1 9.9 2 3.6 4.7a1 1 0 0 0-.6.9v15.8l6.9-2.9 4.2 2.1 6.3-2.7a1 1 0 0 0 .6-.9V2.6z"/><path d="M9.9 2v16.5M14.1 4.1v16.5"/>',
   link:'<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>'
 };
 const icon = (n,cls='ico') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
@@ -225,7 +228,14 @@ scene.add(sun);
 
 const composer = new THREE.EffectComposer(renderer);
 composer.setPixelRatio(PR);
-composer.addPass(new THREE.RenderPass(scene,camera));
+const renderPass = new THREE.RenderPass(scene,camera);
+composer.addPass(renderPass);
+// first-person street view: a pedestrian on the SW BART plaza corner
+const streetCam = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, .1, 400);
+const street = {on:false, yaw:-.95, pitch:.06, pos:new THREE.Vector3(-11.8,1.87,12.2)};
+let activeCam = camera;
+function aimStreet(){ streetCam.position.copy(street.pos); streetCam.rotation.set(street.pitch, street.yaw, 0, 'YXZ'); }
+aimStreet();
 const CLAY = 0xD97757;
 const outlineAll = new THREE.OutlinePass(new THREE.Vector2(innerWidth,innerHeight), scene, camera);
 Object.assign(outlineAll,{edgeStrength:1.25, edgeGlow:0, edgeThickness:1.4});
@@ -626,11 +636,11 @@ let downAt=null; const _hp=new THREE.Vector3();
 function hostAt(e){
   const r=renderer.domElement.getBoundingClientRect();
   ptr.set(((e.clientX-r.left)/r.width)*2-1, -((e.clientY-r.top)/r.height)*2+1);
-  ray.setFromCamera(ptr,camera);
+  ray.setFromCamera(ptr,activeCam);
   const hit=ray.intersectObjects(pickables,false)[0];
   if (hit) return hit.object.userData.host;
   let best=null, bd=44;
-  HOSTS.forEach((h,i)=>{ h.obj.getWorldPosition(_hp); _hp.y=h.obj.userData.vehicle?1.6:4; _hp.project(camera); const sx=(_hp.x+1)/2*r.width+r.left, sy=(1-_hp.y)/2*r.height+r.top; const d=Math.hypot(sx-e.clientX,sy-e.clientY); if (d<bd){bd=d;best=i;} });
+  HOSTS.forEach((h,i)=>{ h.obj.getWorldPosition(_hp); _hp.y=h.obj.userData.vehicle?1.6:4; _hp.project(activeCam); const sx=(_hp.x+1)/2*r.width+r.left, sy=(1-_hp.y)/2*r.height+r.top; const d=Math.hypot(sx-e.clientX,sy-e.clientY); if (d<bd){bd=d;best=i;} });
   return best;
 }
 renderer.domElement.addEventListener('pointerdown',e=>{ downAt=[e.clientX,e.clientY]; });
@@ -639,6 +649,7 @@ renderer.domElement.addEventListener('pointerup',e=>{
   const h=hostAt(e); if (h!=null) select(h); else if (current) closePanel();
 });
 renderer.domElement.addEventListener('pointermove',e=>{
+  if (street.on && (e.buttons&1) && downAt){ street.yaw -= e.movementX*.0045; street.pitch = THREE.MathUtils.clamp(street.pitch - e.movementY*.0045, -1.1, 1.1); aimStreet(); tip.classList.remove('on'); return; }
   const h=e.pointerType==='touch'?null:hostAt(e);
   hover = h;
   renderer.domElement.style.cursor = h!=null ? 'pointer' : 'grab';
@@ -648,6 +659,26 @@ renderer.domElement.addEventListener('pointermove',e=>{
 });
 renderer.domElement.addEventListener('pointerleave',()=>{ tip.classList.remove('on'); hover=null; if(!current) outlineFocus.selectedObjects=[]; });
 
+const viewBtn=document.getElementById('view');
+function setStreet(on){
+  street.on=on; activeCam = on ? streetCam : camera;
+  renderPass.camera = activeCam; outlineAll.renderCamera = activeCam; outlineFocus.renderCamera = activeCam;
+  controls.enabled = !on;
+  viewBtn.innerHTML = `${icon(on?'map':'eye')}${on?"Bird's-eye":'Street view'}`; viewBtn.setAttribute('aria-pressed',on);
+  document.getElementById('hint').textContent = on ? 'Device placement is illustrative, not real camera locations · drag to look · W/S to walk' : 'Device placement is illustrative, not real camera locations · drag to rotate';
+}
+viewBtn.onclick=()=>setStreet(!street.on);
+setStreet(false);
+addEventListener('keydown',e=>{
+  if (!street.on || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  const k=e.key.toLowerCase(); let step=0;
+  if (k==='w'||k==='arrowup') step=1.2; else if (k==='s'||k==='arrowdown') step=-1.2;
+  else if (k==='a'||k==='arrowleft'){ street.yaw+=.08; aimStreet(); return; } else if (k==='d'||k==='arrowright'){ street.yaw-=.08; aimStreet(); return; }
+  if (!step) return; e.preventDefault();
+  street.pos.x = THREE.MathUtils.clamp(street.pos.x - Math.sin(street.yaw)*step, -45, 45);
+  street.pos.z = THREE.MathUtils.clamp(street.pos.z - Math.cos(street.yaw)*step, -45, 45);
+  aimStreet();
+});
 const pauseBtn=document.getElementById('pause');
 function syncPause(){ pauseBtn.textContent=paused?'Resume traffic':'Pause traffic'; pauseBtn.setAttribute('aria-pressed',paused); }
 pauseBtn.onclick=()=>{ paused=!paused; autoPaused=false; syncPause(); };
@@ -657,6 +688,7 @@ if (matchMedia('(prefers-reduced-motion: reduce)').matches){ paused=true; pauseB
 function resize(){
   const w=innerWidth,h=innerHeight,a=w/h, fr = a<.9 ? FR*1.45 : FR;
   camera.left=-fr*a; camera.right=fr*a; camera.top=fr; camera.bottom=-fr; camera.updateProjectionMatrix();
+  streetCam.aspect=a; streetCam.updateProjectionMatrix();
   renderer.setSize(w,h,false); composer.setSize(w,h);
   fxaa.material.uniforms.resolution.value.set(1/(w*PR),1/(h*PR));
 }
@@ -668,8 +700,8 @@ function frame(){
   if (!paused){ simT+=dt; stepTraffic(dt,phaseAt(simT)); }
   paintSignals(phaseAt(simT));
   outlineFocus.pulsePeriod = current ? 2.2 : 0;
-  if (current){ current.obj.getWorldPosition(_ft); _ft.y=0; _ft.clamp(_fmin,_fmax); _fd.copy(_ft).sub(controls.target).multiplyScalar(.07); if (_fd.lengthSq()>1e-5){ controls.target.add(_fd); camera.position.add(_fd); } }
-  controls.update();
+  if (current && !street.on){ current.obj.getWorldPosition(_ft); _ft.y=0; _ft.clamp(_fmin,_fmax); _fd.copy(_ft).sub(controls.target).multiplyScalar(.07); if (_fd.lengthSq()>1e-5){ controls.target.add(_fd); camera.position.add(_fd); } }
+  if (!street.on) controls.update();
   composer.render();
   requestAnimationFrame(frame);
 }
