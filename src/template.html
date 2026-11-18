@@ -197,7 +197,7 @@ const SYSTEMS = {
 /* ================= renderer, camera, post ================= */
 const stage = document.getElementById('stage');
 const renderer = new THREE.WebGLRenderer({antialias:false, powerPreference:'high-performance'});
-const PR = Math.min(devicePixelRatio, 2);
+let PR = Math.min(devicePixelRatio, 1.5);
 renderer.setPixelRatio(PR);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -220,7 +220,7 @@ controls.minZoom = .6; controls.maxZoom = 2.4;
 scene.add(new THREE.HemisphereLight(0xFBF8F4, 0xD9CFC3, .74));
 const sun = new THREE.DirectionalLight(0xFFE9D2, .42);
 sun.position.set(-30,60,24); sun.castShadow = true;
-sun.shadow.mapSize.set(2048,2048);
+sun.shadow.mapSize.set(1024,1024);
 Object.assign(sun.shadow.camera,{left:-60,right:60,top:60,bottom:-60,near:1,far:160});
 sun.shadow.bias = -.0006; sun.shadow.normalBias = .02;
 scene.add(sun);
@@ -230,20 +230,20 @@ composer.setPixelRatio(PR);
 const renderPass = new THREE.RenderPass(scene,camera);
 composer.addPass(renderPass);
 // first-person street view: a pedestrian on the SW BART plaza corner
-const streetCam = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, .1, 400);
+const streetCam = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, .1, 170);
 const street = {on:false, yaw:-.95, pitch:.06, pos:new THREE.Vector3(-11.8,1.87,12.2)};
 let activeCam = camera;
 function aimStreet(){ streetCam.position.copy(street.pos); streetCam.rotation.set(street.pitch, street.yaw, 0, 'YXZ'); }
 aimStreet();
 const CLAY = 0xD97757;
 const outlineAll = new THREE.OutlinePass(new THREE.Vector2(innerWidth,innerHeight), scene, camera);
-Object.assign(outlineAll,{edgeStrength:1.25, edgeGlow:0, edgeThickness:1.4});
+Object.assign(outlineAll,{edgeStrength:2.4, edgeGlow:.9, edgeThickness:2.8});
 // OutlinePass adds light by default, which vanishes on a white street; paint the edge over the scene instead.
 outlineAll.overlayMaterial.blending = THREE.NormalBlending;
 outlineAll.visibleEdgeColor.set(CLAY); outlineAll.hiddenEdgeColor.set(0xEDB59F);
 composer.addPass(outlineAll);
 const outlineFocus = new THREE.OutlinePass(new THREE.Vector2(innerWidth,innerHeight), scene, camera);
-Object.assign(outlineFocus,{edgeStrength:1.6, edgeGlow:.6, edgeThickness:3, pulsePeriod:0});
+Object.assign(outlineFocus,{edgeStrength:3.2, edgeGlow:1.6, edgeThickness:4.2, pulsePeriod:0});
 outlineFocus.overlayMaterial.blending = THREE.NormalBlending;
 outlineFocus.visibleEdgeColor.set(CLAY); outlineFocus.hiddenEdgeColor.set(CLAY);
 composer.addPass(outlineFocus);
@@ -463,6 +463,13 @@ for (const s of [-46,4,30]) addVehicle(4,carBody(),s,4.8,5.6);
 for (const s of [-40,6,38]) addVehicle(5,carBody(),s,4.8,5.8);
 addHost(bus,'Muni bus',['tole','bussec','busai']);
 for (const o of [bus,police,pcoCar,taxiCar]) o.userData.vehicle=true;
+const padMat = new THREE.MeshBasicMaterial({color:CLAY, transparent:true, opacity:.24, depthWrite:false});
+const padGeo = new THREE.CircleGeometry(1,48);
+HOSTS.forEach((h,i)=>{
+  const [rx,rz] = h.obj===bus ? [7.6,2.2] : h.obj.userData.vehicle ? [3.3,1.75] : [1.6,1.6];
+  const pad = new THREE.Mesh(padGeo,padMat); pad.rotation.x=-Math.PI/2; pad.scale.set(rx,rz,1); pad.position.y=.05; pad.renderOrder=1;
+  pad.userData.host=i; pad.userData.cone=true; h.obj.add(pad);
+});
 addHost(police,'Police car',['police']);
 addHost(pcoCar,'Parking enforcement car',['pco']);
 addHost(taxiCar,'Taxi',['taxi']);
@@ -661,6 +668,7 @@ renderer.domElement.addEventListener('pointerleave',()=>{ tip.classList.remove('
 const viewBtn=document.getElementById('view');
 function setStreet(on){
   street.on=on; activeCam = on ? streetCam : camera;
+  PR = on ? 1 : Math.min(devicePixelRatio,1.5); renderer.setPixelRatio(PR); composer.setPixelRatio(PR); if (typeof fxaa!=='undefined') resize();
   renderPass.camera = activeCam; outlineAll.renderCamera = activeCam; outlineFocus.renderCamera = activeCam;
   controls.enabled = !on;
   viewBtn.innerHTML = `${icon(on?'map':'eye')}${on?"Bird's-eye":'Street view'}`; viewBtn.setAttribute('aria-pressed',on);
@@ -699,6 +707,7 @@ function frame(){
   if (!paused){ simT+=dt; stepTraffic(dt,phaseAt(simT)); }
   paintSignals(phaseAt(simT));
   outlineFocus.pulsePeriod = current ? 2.2 : 0;
+  outlineFocus.enabled = outlineFocus.selectedObjects.length>0;
   if (current && !street.on){ current.obj.getWorldPosition(_ft); _ft.y=0; _ft.clamp(_fmin,_fmax); _fd.copy(_ft).sub(controls.target).multiplyScalar(.07); if (_fd.lengthSq()>1e-5){ controls.target.add(_fd); camera.position.add(_fd); } }
   if (!street.on) controls.update();
   composer.render();
