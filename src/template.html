@@ -206,6 +206,27 @@ stage.appendChild(renderer.domElement);
 const BG = 0xECE9E4;
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(BG);
+// soft daytime sky: gradient, sun glow and drifting clouds; only drawn in street view
+const sky = new THREE.Mesh(new THREE.SphereGeometry(140,32,16), new THREE.ShaderMaterial({
+  side:THREE.BackSide, depthWrite:false, fog:false,
+  uniforms:{uSun:{value:new THREE.Vector3(-30,60,24).normalize()}, uTime:{value:0}},
+  vertexShader:`varying vec3 vDir; void main(){ vDir=normalize(position); vec4 p=projectionMatrix*modelViewMatrix*vec4(position,1.); gl_Position=p; gl_Position.z=p.w*.9999; }`,
+  fragmentShader:`uniform vec3 uSun; uniform float uTime; varying vec3 vDir;
+  float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+  float noise(vec2 p){ vec2 i=floor(p), f=fract(p); vec2 u=f*f*(3.-2.*f); return mix(mix(hash(i),hash(i+vec2(1.,0.)),u.x), mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),u.x), u.y); }
+  float fbm(vec2 p){ float v=0., a=.5; for(int i=0;i<5;i++){ v+=a*noise(p); p*=2.03; a*=.5; } return v; }
+  void main(){
+    vec3 d=normalize(vDir); float h=d.y;
+    vec3 zen=vec3(.40,.60,.86), mid=vec3(.64,.78,.93), hor=vec3(.95,.92,.88);
+    vec3 col=mix(hor,mid,smoothstep(0.,.22,h)); col=mix(col,zen,smoothstep(.22,.95,h));
+    float s=max(dot(d,uSun),0.);
+    col+=vec3(1.,.86,.66)*(pow(s,6.)*.16+pow(s,80.)*.4)+vec3(1.,.96,.88)*smoothstep(.9993,.9996,s);
+    if(h>0.){ vec2 uv=d.xz/(h+.12)*1.3+vec2(uTime*.008,uTime*.003); float c=smoothstep(.5,.8,fbm(uv)); c*=smoothstep(.0,.2,h); col=mix(col,vec3(1.,.99,.97),c*.85); }
+    gl_FragColor=vec4(col,1.);
+  }`
+}));
+sky.renderOrder=-1; sky.frustumCulled=false; sky.visible=false; scene.add(sky);
+const haze = new THREE.Fog(0xF2EBE0, 60, 165);
 
 const FR = 17;
 const camera = new THREE.OrthographicCamera(-FR,FR,FR,-FR,1,420);
@@ -231,7 +252,8 @@ const renderPass = new THREE.RenderPass(scene,camera);
 composer.addPass(renderPass);
 // first-person street view: a pedestrian on the SW BART plaza corner
 const streetCam = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, .1, 170);
-const street = {on:false, yaw:-.95, pitch:.06, pos:new THREE.Vector3(-11.8,1.87,12.2)};
+const street = {on:false, yaw:-.95, pitch:.06, tyaw:-.95, tpitch:.06, vel:0, pos:new THREE.Vector3(-11.8,1.87,12.2)};
+const KEYS = new Set();
 let activeCam = camera;
 function aimStreet(){ streetCam.position.copy(street.pos); streetCam.rotation.set(street.pitch, street.yaw, 0, 'YXZ'); }
 aimStreet();
@@ -655,7 +677,7 @@ renderer.domElement.addEventListener('pointerup',e=>{
   const h=hostAt(e); if (h!=null) select(h); else if (current) closePanel();
 });
 renderer.domElement.addEventListener('pointermove',e=>{
-  if (street.on && (e.buttons&1) && downAt){ street.yaw -= e.movementX*.0045; street.pitch = THREE.MathUtils.clamp(street.pitch - e.movementY*.0045, -1.1, 1.1); aimStreet(); tip.classList.remove('on'); return; }
+  if (street.on && (e.buttons&1) && downAt){ street.tyaw -= e.movementX*.0042; street.tpitch = THREE.MathUtils.clamp(street.tpitch - e.movementY*.0042, -1.0, 1.0); tip.classList.remove('on'); return; }
   const h=e.pointerType==='touch'?null:hostAt(e);
   hover = h;
   renderer.domElement.style.cursor = h!=null ? 'pointer' : 'grab';
@@ -667,7 +689,7 @@ renderer.domElement.addEventListener('pointerleave',()=>{ tip.classList.remove('
 
 const viewBtn=document.getElementById('view');
 function setStreet(on){
-  street.on=on; activeCam = on ? streetCam : camera;
+  street.on=on; activeCam = on ? streetCam : camera; sky.visible=on; scene.fog = on ? haze : null; KEYS.clear(); street.vel=0;
   PR = on ? 1 : Math.min(devicePixelRatio,1.5); renderer.setPixelRatio(PR); composer.setPixelRatio(PR); if (typeof fxaa!=='undefined') resize();
   renderPass.camera = activeCam; outlineAll.renderCamera = activeCam; outlineFocus.renderCamera = activeCam;
   controls.enabled = !on;
@@ -676,16 +698,14 @@ function setStreet(on){
 }
 viewBtn.onclick=()=>setStreet(!street.on);
 setStreet(false);
+const MOVE_KEYS=['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'];
 addEventListener('keydown',e=>{
   if (!street.on || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
-  const k=e.key.toLowerCase(); let step=0;
-  if (k==='w'||k==='arrowup') step=1.2; else if (k==='s'||k==='arrowdown') step=-1.2;
-  else if (k==='a'||k==='arrowleft'){ street.yaw+=.08; aimStreet(); return; } else if (k==='d'||k==='arrowright'){ street.yaw-=.08; aimStreet(); return; }
-  if (!step) return; e.preventDefault();
-  street.pos.x = THREE.MathUtils.clamp(street.pos.x - Math.sin(street.yaw)*step, -45, 45);
-  street.pos.z = THREE.MathUtils.clamp(street.pos.z - Math.cos(street.yaw)*step, -45, 45);
-  aimStreet();
+  const k=e.key.toLowerCase(); if (!MOVE_KEYS.includes(k)) return;
+  e.preventDefault(); KEYS.add(k);
 });
+addEventListener('keyup',e=>KEYS.delete(e.key.toLowerCase()));
+addEventListener('blur',()=>KEYS.clear());
 const pauseBtn=document.getElementById('pause');
 function syncPause(){ pauseBtn.textContent=paused?'Resume traffic':'Pause traffic'; pauseBtn.setAttribute('aria-pressed',paused); }
 pauseBtn.onclick=()=>{ paused=!paused; autoPaused=false; syncPause(); };
@@ -709,6 +729,19 @@ function frame(){
   outlineFocus.pulsePeriod = current ? 2.2 : 0;
   outlineFocus.enabled = outlineFocus.selectedObjects.length>0;
   if (current && !street.on){ current.obj.getWorldPosition(_ft); _ft.y=0; _ft.clamp(_fmin,_fmax); _fd.copy(_ft).sub(controls.target).multiplyScalar(.07); if (_fd.lengthSq()>1e-5){ controls.target.add(_fd); camera.position.add(_fd); } }
+  if (street.on){
+    const fwd=(KEYS.has('w')||KEYS.has('arrowup')?1:0)-(KEYS.has('s')||KEYS.has('arrowdown')?1:0);
+    const turn=(KEYS.has('a')||KEYS.has('arrowleft')?1:0)-(KEYS.has('d')||KEYS.has('arrowright')?1:0);
+    street.tyaw += turn*1.6*dt;
+    street.vel += (fwd*4.5-street.vel)*Math.min(1,dt*7);
+    if (Math.abs(street.vel)>.01){
+      street.pos.x=THREE.MathUtils.clamp(street.pos.x-Math.sin(street.yaw)*street.vel*dt,-45,45);
+      street.pos.z=THREE.MathUtils.clamp(street.pos.z-Math.cos(street.yaw)*street.vel*dt,-45,45);
+    }
+    const k=1-Math.exp(-dt*14); street.yaw+=(street.tyaw-street.yaw)*k; street.pitch+=(street.tpitch-street.pitch)*k;
+    street.pos.y = 1.87 + Math.sin(clock.elapsedTime*9)*.025*Math.min(1,Math.abs(street.vel)/4.5);
+    aimStreet(); sky.position.copy(streetCam.position); sky.material.uniforms.uTime.value=clock.elapsedTime;
+  }
   if (!street.on) controls.update();
   composer.render();
   requestAnimationFrame(frame);
