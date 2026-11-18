@@ -1,0 +1,375 @@
+[
+  {
+    "id": "sfmta_speed",
+    "name": "Automated Speed Enforcement cameras",
+    "department": "SFMTA (Municipal Transportation Agency)",
+    "purpose": "Enforce speed limits on City streets under California's Speed Safety System Pilot Program (Vehicle Code 22425-22434) and report on that enforcement.",
+    "collects": [
+      "digital image (JPEG) of the speeding vehicle's rear license plate",
+      "confidential registered-owner information from the California DMV, used to issue notices of violation"
+    ],
+    "identifies_people": "Text describes photographing only the rear license plate, and cameras 'do not record data unless triggered by a speeding vehicle'; registered-owner info is obtained from the DMV to issue notices, so owners are identifiable during processing.",
+    "retention": [
+      {
+        "what": "photographic evidence where a notice of speeding violation is issued",
+        "period": "up to 60 days after final disposition of notice of speeding violation"
+      },
+      {
+        "what": "photographic evidence if no notice of speeding violation is issued",
+        "period": "up to five days"
+      },
+      {
+        "what": "confidential DMV information used to issue notices of violation",
+        "period": "up to 120 days after final disposition of notice of speeding violation"
+      }
+    ],
+    "shared_internal": [
+      "Does not share ASE data with other City departments or entities",
+      "Shares only anonymized reports with Vision Zero departments: SFPD, Office of the Medical Examiner (OME), Department of Public Health (DPH)"
+    ],
+    "shared_external": [],
+    "outside_law_enforcement_access": "Data is confidential under Vehicle Code 22425(l); not disclosed to any other persons, including other state or federal agencies, 'except as required by state or federal law, court order, or in response to a subpoena in an individual case or proceeding'. Policy also says no external sharing 'unless a warrant/subpoena was issued'.",
+    "audit": "'All access to and activity in the ASE system will be logged and be audited.' Oversight positions named: 9180 Director of Parking Enforcement and Traffic; 5290 Program Manager for SFMTA Speed Safety Cameras. Audit frequency and public reporting not stated.",
+    "vague_or_missing": [
+      "Policy is a draft: Board of Supervisors approval 'TBD'; PSAB and COIT dates are labeled 'Recommended'",
+      "No vendor or contractor is named, so who operates the cameras or hosts the data is not stated",
+      "Storage-location checkboxes (local, Dept of Technology Data Center, SaaS, cloud) are not legible in the extracted text, so where data is actually stored is unclear",
+      "Audit frequency, who reviews the logs, and any public reporting are not stated",
+      "'Department does not plan to retain data beyond' the stated periods is phrased as a plan, not a rule",
+      "Retention for anonymized or aggregated data is not stated (only raw data disposal)"
+    ],
+    "quote": "shall not be disclosed to any other persons, including, but not limited to, any other state or federal government agency",
+    "quote_location": "sfmta_speed.txt ~lines 354-357 (Compliance, citing CVC 22425(l)(5)); retention table is ~lines 304-315",
+    "confidence": "high"
+  },
+  {
+    "id": "sfmta_redlight",
+    "name": "Red Light and No-Turn Enforcement cameras",
+    "department": "SFMTA (Municipal Transportation Agency)",
+    "purpose": "Cite and prosecute red-light and illegal-turn violations, and use the data for engineering analysis such as vehicle counts, speeds and violation numbers.",
+    "collects": [
+      "three digital photos per event: two of the rear and one of the front of the violating vehicle (front photo captures the driver)",
+      "short HD video clip of the violation",
+      "violation data stamped on each image (date/time/lane/red-light time)",
+      "3D radar tracking of vehicle position, speed and direction",
+      "registered owner's name, address and identifying information from the California DMV or another state/country's agency",
+      "continuous intersection video on the camera, overwritten every 30 days"
+    ],
+    "identifies_people": "Yes. Photographs the license plate and the driver's face (citation includes a close-up of the driver), and DMV supplies the registered owner's name and address. Passengers captured in violation photos are blurred.",
+    "retention": [
+      {
+        "what": "events that do not result in a citation (driver information, data, images)",
+        "period": "Contractor must destroy within 15 Business Days of determining the Event does not meet the City's Business Rules, or SFPD's rejection of the Event"
+      },
+      {
+        "what": "violations that result in a citation (all related information incl. data, images, paper records)",
+        "period": "Contractor must destroy within 15 Business Days of final disposition; if notice of final disposition is not received from the Superior Court, within 5 years of the Citation due date"
+      },
+      {
+        "what": "continuous video recorded on cameras at the intersection",
+        "period": "overwritten every 30 days; only brief clips of potential violations are uploaded to the Contractor"
+      },
+      {
+        "what": "any PII data, exception",
+        "period": "may be kept beyond the standard period for litigation holds, court orders, search warrants, subpoenas"
+      }
+    ],
+    "shared_internal": [
+      "SFMTA",
+      "SFPD (images, video, metadata, DMV information)",
+      "Superior Court (daily XML/PDF reports with violation photos, citation info and driver details incl. name, address, date of birth, height, weight; policy lists the court as internal)"
+    ],
+    "shared_external": [
+      "Verra Mobility (the Contractor: owns, operates and maintains the system, reviews violations, processes, prints and mails citations; contract signed Aug 21, 2018)",
+      "Contractor's print and mail subcontractor (unnamed)",
+      "Contractor's Call Center (unnamed)",
+      "Contractor's Expert Witness (unnamed)"
+    ],
+    "outside_law_enforcement_access": "Photographic records are confidential under Vehicle Code 21455.5(f) and available 'only to governmental agencies and law enforcement agencies'. Policy says 'a search warrant or subpoena signed by a judge is required to share PII data' outside the normal process. Out-of-state and federal agencies are not specifically addressed.",
+    "audit": "No access-log or audit-log requirement stated. Compliance is enforced through the Verra Mobility contract (insurance, encryption, liquidated damages for loss of violation data). Contractor performs monthly quality-control audits of rejected events. Oversight: Automated Enforcement Program Manager (1824 Principal Administrative Analyst).",
+    "vague_or_missing": [
+      "The 5-year fallback destruction deadline is described as 'currently in the process of being documented in a Contract amendment', so it is not yet in the contract",
+      "Retention periods are obligations on the Contractor; the Department states no retention period of its own",
+      "The three subcontractors (print/mail, call center, expert witness) are unnamed and no retention or deletion terms are stated for them",
+      "General language 'only as long as necessary to accomplish a lawful and authorized purpose' is not a fixed period",
+      "No audit logging, review frequency, or public reporting is stated",
+      "Policy says SFMTA 'will endeavor to ensure' receiving agencies follow the policy",
+      "Review status: COIT date 'TBD' and Board of Supervisors approval 'TBD'",
+      "Contract excerpt names triple-DES as the minimum encryption algorithm; the policy elsewhere says only 'encrypted at rest'"
+    ],
+    "quote": "a search warrant or subpoena signed by a judge is required to share PII data",
+    "quote_location": "sfmta_redlight.txt ~lines 619-620 (Exceptions); retention table is ~lines 504-545",
+    "confidence": "medium",
+    "confidence_note": "Numbers read from a two-column table and are clear, but the 5-year fallback is not yet in the contract."
+  },
+  {
+    "id": "sfmta_lpr",
+    "name": "License Plate Readers (parking enforcement, Transit-Only Lane enforcement, garages)",
+    "department": "SFMTA (Municipal Transportation Agency)",
+    "purpose": "Enforce parking rules and transit-only lanes, calculate fees in City-owned garages, flag vehicles on SFPD hot lists, and analyze parking and curb use.",
+    "collects": [
+      "video and images (JPEG, G64m)",
+      "date and time",
+      "geolocation data"
+    ],
+    "identifies_people": "Not stated directly. Policy says it will minimize PII and remove incidental identifying data, but it links individual vehicles to garage entry/exit times and checks plates against SFPD 'hot lists' (e.g., stolen vehicles, felony wants, missing persons) where configured.",
+    "retention": [
+      {
+        "what": "digital images not associated with a parking citation",
+        "period": "14 days"
+      },
+      {
+        "what": "digital images associated with a parking citation",
+        "period": "365 days"
+      },
+      {
+        "what": "digital images from parking garages",
+        "period": "60 days after customer exits garage"
+      },
+      {
+        "what": "parking garage data (digital images converted to numerical data), archive reporting",
+        "period": "2 years"
+      },
+      {
+        "what": "license plate used as a credential for garage entry/exit (e.g., frictionless parking or reservation)",
+        "period": "stored for as long as individual is using that service"
+      },
+      {
+        "what": "exception: data used in a criminal investigation",
+        "period": "may be kept beyond the periods above where ALPR data is used in a criminal investigation, or as otherwise required by law"
+      }
+    ],
+    "shared_internal": [
+      "Different divisions within SFMTA",
+      "Police Department",
+      "City Attorney",
+      "District Attorney",
+      "Sheriff (as needed)"
+    ],
+    "shared_external": [
+      "City-owned parking garage operators under contract (currently LAZ and Impark/IMCO)",
+      "Conduent Technology (citation-processing contractor)",
+      "Genetec (ALPR vendor)",
+      "Skidata (parking access and revenue control system (PARCS) vendor)"
+    ],
+    "outside_law_enforcement_access": "Not stated for other police agencies, federal agencies or out-of-state agencies; the only external recipients named are garage operators and vendors. Policy allows use inconsistent with it 'if ordered by a court or otherwise required by law' or in exigent circumstances. Internal sharing with SFPD, DA and Sheriff is 'as needed' with no warrant standard stated.",
+    "audit": "'All access to and activity in the ALPR system is logged and can be audited.' Oversight: Commander of Parking Enforcement and Traffic; Operations Manager and Policy Manager, SFMTA Parking and Curb Management. Audit frequency and reporting not stated.",
+    "vague_or_missing": [
+      "The text never mentions buses or Muni-mounted cameras; Transit Only Lane Enforcement appears only as authorized use #2, so bus-mounted cameras cannot be confirmed from this document",
+      "Sharing with SFPD, DA, City Attorney and Sheriff is 'as needed' with no legal standard stated",
+      "Garage operators and vendors 'may change periodically'; external sharing frequency is only 'Ongoing'",
+      "Plate-as-credential data is kept 'as long as individual is using that service' (open-ended)",
+      "Criminal-investigation exception has no time limit",
+      "Policy says SFMTA 'will endeavor to ensure' recipients comply with the policy",
+      "No rule stated for out-of-state or federal agencies",
+      "Board of Supervisors approval date is blank (COIT approved October 21, 2021)"
+    ],
+    "quote": "Digital images not associated with a parking citation are retained for 14 days.",
+    "quote_location": "sfmta_lpr.txt ~lines 314-316 (Data Retention table, left column)",
+    "confidence": "high"
+  },
+  {
+    "id": "sfmta_security",
+    "name": "Security Cameras (fixed and mobile: facilities, stations, garages, signal poles, transit vehicles)",
+    "department": "SFMTA (Municipal Transportation Agency)",
+    "purpose": "Live monitoring and recording of video to protect staff, patrons and facilities, review incidents, give footage to law enforcement, enforce parking and driving violations, and train transit operators from on-board video.",
+    "collects": [
+      "video and images (MP4, AVI, MPEG)",
+      "date and time",
+      "geolocation data (TXT, CSV, DOCX)"
+    ],
+    "identifies_people": "Not stated. Policy prohibits using the data to infer race, religion, etc. and prohibits biometric processing to uniquely identify a person, but does not say whether individuals shown on video are identified. Audio is not mentioned.",
+    "retention": [
+      {
+        "what": "security camera data",
+        "period": "stored for a minimum of one month or as long as the installed technology allows (Cal. Gov. Code 34090.8(b))"
+      },
+      {
+        "what": "data associated with an incident",
+        "period": "may be kept for longer than the standard retention period (no limit stated)"
+      }
+    ],
+    "shared_internal": [
+      "Within the operating Department (SFMTA)",
+      "Police",
+      "City Attorney",
+      "District Attorney",
+      "Sheriff (in the event of an incident, as needed)"
+    ],
+    "shared_external": [
+      "Other local police departments (as needed)",
+      "Garage operators / parking garage management contractors (at least view access to local cameras)",
+      "Contract Security Officers (monitor facilities live)",
+      "DriveCam (event recorder footage is forwarded and analyzed by DriveCam safety experts, per Appendix A)"
+    ],
+    "outside_law_enforcement_access": "Other local police departments may receive footage as needed; business justification says video evidence goes to law enforcement or the public 'upon request by formal process, order, or subpoena'. Video is also treated as public record and 'generally released' on public records requests unless an exemption (e.g., pending law enforcement investigation) applies. Federal and out-of-state agencies not addressed.",
+    "audit": "A data access log is maintained for all Security Camera data processed and used (date/time collected, reason, requesting department, date/time of raw-data access, outcome, delivery date). Compliance is enforced 'according to the respective memorandum of understanding of employees and their respective labor union agreement'; no named oversight personnel.",
+    "vague_or_missing": [
+      "Retention is a minimum ('minimum of one month or as long as the installed technology allows'), not a maximum; no maximum is given",
+      "Incident-related footage may be kept longer with no limit",
+      "Does not state whether audio is recorded",
+      "Does not state whether people on video are identified; the public-notice items for type of data collected, whether persons are identified, and data retention are unchecked",
+      "No legal standard (warrant, etc.) stated for sharing with other local police departments",
+      "No rule for federal or out-of-state agencies",
+      "Vendors named (Hanwa or Axis cameras, Genetec video management software, DTI mobile video recorders, DriveCam) but the policy does not say what data each can access",
+      "No named compliance personnel",
+      "Storage includes an unnamed Software as a Service product"
+    ],
+    "quote": "stored for a minimum of one month or as long as the installed technology allows",
+    "quote_location": "sfmta_security.txt ~lines 241-243 (Data Retention)",
+    "confidence": "medium",
+    "confidence_note": "Stated as a minimum with no maximum, so the real retention is unclear."
+  },
+  {
+    "id": "sfmta_busanalytics",
+    "name": "Driver-Safety Video Analytics (DriveCam event recorders on buses)",
+    "department": "SFMTA (Municipal Transportation Agency)",
+    "purpose": "Record g-force-triggered video and audio events on buses to analyze collisions, passenger falls, driver training issues and misconduct, infrastructure problems and customer complaints.",
+    "collects": [
+      "12 seconds of video AND audio per event (8 seconds before and 4 seconds after a g-force trigger)",
+      "event reports (HTML, downloaded as PDF)",
+      "event data such as location, date/time, bus speed, trigger type and g-forces",
+      "AI-flagged driver behaviors (e.g., talking on cell phone, eating while driving, drowsy/sleeping, speeding, rolling stops)"
+    ],
+    "identifies_people": "Used to identify driver training issues, misconduct or negligence; follow-up actions include training and discipline, and videos/reports are treated as confidential personnel records. Policy says it is not used to monitor passengers or the public.",
+    "retention": [
+      {
+        "what": "video and PDF reports (by Department)",
+        "period": "retained 365 days by vendor, then deleted on day 366"
+      },
+      {
+        "what": "video uploaded to the Lytx data center",
+        "period": "retained and available for 90 days, then stored on backup media for an additional 275 days; deleted from data center on 91st day and from backup media on 276th day"
+      },
+      {
+        "what": "video that warrants further investigation",
+        "period": "Department may retain longer on its servers (no limit stated)"
+      }
+    ],
+    "shared_internal": [
+      "SFPD (only after written request approved by the Chief Safety Officer; about 2 or 3 times per year)",
+      "City Attorney's Office (2 to 4 times per month)",
+      "SFMTA safety staff with portal access (Chief Safety Officer, analysts, clerks, safety officers)"
+    ],
+    "shared_external": [
+      "Lytx (vendor; receives video, owns the proprietary algorithms and reviews events)"
+    ],
+    "outside_law_enforcement_access": "Law enforcement agencies are not given access to the web portal; videos 'may be provided' on written request from an investigating officer describing the specific investigative need, authorized by the Chief Safety Officer. Exceptions section: shared with law enforcement only in exigent circumstances or where it 'requires' the data for investigatory or prosecutorial functions. No warrant required in the text; out-of-state and federal agencies not specifically addressed.",
+    "audit": "Administrator periodically reviews the user list and disables accounts not logged in for 365 days, departed staff, etc.; misuse is referred to the person's supervisor. No access-log requirement stated. Oversight: Chief Safety Officer (9183), Manager (9172), Drivecam Administrator (9172). Policy says Lytx 'has been asked not to view the live video feed'.",
+    "vague_or_missing": [
+      "Department may keep video longer on its own servers with no stated limit",
+      "Lytx's own retention after it deletes data, and any other Lytx use of the footage, is not stated beyond the 365-day schedule",
+      "Audio is recorded but the policy gives no public notice or signage",
+      "Lytx 'has been asked' not to view live feeds 'if system allows live viewing' is not a binding rule",
+      "User-list review is 'periodically' with no fixed schedule; no access-log requirement",
+      "Law-enforcement sharing needs only a written request plus Chief Safety Officer approval, not a warrant",
+      "Text refers to the 'rubber tire' fleet (845 buses incl. trolley-coaches); rail coverage is not stated",
+      "Policy approval status: Board of Supervisors 'TBD'"
+    ],
+    "quote": "retained 365 days by vendor and then on day 366 it is deleted",
+    "quote_location": "sfmta_busanalytics.txt ~lines 455-457 (Data Retention table, left column)",
+    "confidence": "high"
+  },
+  {
+    "id": "sfmta_taxi",
+    "name": "Taxi Dashboard Cameras",
+    "department": "SFMTA (Municipal Transportation Agency)",
+    "purpose": "Review in-cab video to handle complaints and appeals, check taxi company compliance, confirm publicly funded rides (e.g., wheelchair program) were completed, and investigate crimes and accidents involving taxis.",
+    "collects": [
+      "video and audio recordings from taxi cab cabins, including conversations between riders and drivers",
+      "front-facing video of traffic conditions and routes taken"
+    ],
+    "identifies_people": "Yes, effectively. Records drivers and riders in the cabin; policy says the department does not scrub images of drivers and riders because it needs them for authorized uses.",
+    "retention": [
+      {
+        "what": "data used at taxi disciplinary hearings",
+        "period": "retained indefinitely"
+      },
+      {
+        "what": "data used for other purposes, including compliance audits",
+        "period": "SD cards are returned to the taxi cab companies and other taxi permittees after the audit is performed; not retained by the Department"
+      }
+    ],
+    "shared_internal": [
+      "SFMTA",
+      "San Francisco Police Department (SFPD)",
+      "District Attorney",
+      "Public Defender"
+    ],
+    "shared_external": [
+      "California Highway Patrol (CHP) and other law enforcement agencies, but only with a warrant"
+    ],
+    "outside_law_enforcement_access": "External sharing with CHP and other law enforcement is 'only with a warrant'. The Exceptions section is broader: data may be shared with law enforcement 'in exigent circumstances or in circumstances where law enforcement requires' it for investigatory or prosecutorial functions. Federal and out-of-state agencies not specifically addressed.",
+    "audit": "No access log or audit requirement stated; only that video is password protected (viewed in proprietary software, mainly Janus). Compliance oversight: 9174 Enforcement and Legal Affairs Manager. Policy says the Department 'does not have a training policy'.",
+    "vague_or_missing": [
+      "Hearing data is retained 'indefinitely' (no end date)",
+      "How long taxi companies keep video on SD cards is not stated (Department does not own the cameras)",
+      "Retention of the 'possible copy from the cloud' is not stated",
+      "The warrant-only external sharing rule conflicts with the broader Exceptions language for law enforcement",
+      "No audit logging or review of access",
+      "Public notice is left to taxi companies under the Transportation Code",
+      "Data storage is listed only as 'Local Storage'",
+      "Audio of rider conversations is recorded but no rules on its use are given beyond the authorized uses"
+    ],
+    "quote": "For data used at taxi disciplinary hearings, data is retained indefinitely.",
+    "quote_location": "sfmta_taxi.txt ~lines 337-338 (Data Disposal; also retention table ~lines 312-322)",
+    "confidence": "high"
+  },
+  {
+    "id": "sfpd_alpr",
+    "name": "SFPD Automated License Plate Readers (ALPR)",
+    "department": "San Francisco Police Department (SFPD)",
+    "purpose": "Locate stolen or wanted vehicles, wanted persons, victims and missing people, support criminal investigations and counter-terrorism by reading license plates against hotlists.",
+    "collects": [
+      "digital images of vehicle license plates and their associated vehicles",
+      "date and time the plate passed an ALPR site",
+      "geo-location (named in the use rules; amended policy lists time and geo-location metadata)",
+      "video and still images in common formats (added in amended policy)"
+    ],
+    "identifies_people": "Policy states 'ALPR does not collect PII' (both documents) and the amended policy says an ALPR alert will not on its own identify an individual. However, authorized uses include locating wanted persons, suspects and victims by plate.",
+    "retention": [
+      {
+        "what": "ALPR records (SFPD defers to the NCRIC retention standard)",
+        "period": "12 months from capture"
+      },
+      {
+        "what": "records connected to a criminal investigation or criminal intelligence file",
+        "period": "may be retained for 5 years"
+      },
+      {
+        "what": "data downloaded, copied or printed for a criminal investigation",
+        "period": "kept through adjudication of a case, an appeals process and statute of limitations (no number stated)"
+      }
+    ],
+    "shared_internal": [
+      "District Attorney's Office (evidence for prosecution)",
+      "Public Defender's Office or criminal defense attorney, via the District Attorney's Office under California discovery laws",
+      "SFPD personnel: sworn members, civilian crime analysts; radio shop technicians (hardware only)"
+    ],
+    "shared_external": [
+      "NCRIC (Northern California Regional Intelligence Center) hosts the data repositories; amended policy adds 'and/or any other vendor utilized by the Department'",
+      "NCRIC law enforcement partners, for a criminal or administrative investigation",
+      "Parties to civil litigation or other third parties, in response to a valid Court Order",
+      "Amended policy Appendix A: 'Other law enforcement offices as part of a criminal or administrative investigation'; NCRIC partner agencies access the database"
+    ],
+    "outside_law_enforcement_access": "2021 policy: shares with NCRIC law enforcement partners for criminal or administrative investigations, and with civil litigants on court order; no out-of-state or federal rule stated. AMENDED policy adds (citing Civil Code 1798.90.55): SFPD shall not sell, share or transfer ALPR information except to another public agency as permitted by state law, and not to out-of-state or federal agencies 'without a court order or warrant issued by a California court'; hosting and towing services do not count as sharing. Amended Appendix A also says NCRIC-hosted data is not used for enforcement of immigration laws.",
+    "audit": "No access-log or audit requirement stated. Access via BOSS (Back Office Server Software) or other vendor applications; users need approval, access must be tied to an investigation or authorized use; CLETS and DGO 10.08 apply. Oversight: Deputy Chief of Investigations and Lieutenant of Special Investigations Division; violations go to Internal Affairs. Amended policy says the Department will 'evaluate the impact of the technology on the following measures' annually, but the list is blank in the text.",
+    "vague_or_missing": [
+      "Retention is not set by SFPD; it 'defers to the NCRIC retention standard' (12 months, or 5 years if tied to a criminal investigation or intelligence file)",
+      "The amended policy words it as 'NCRIC advises' 12 months, and includes boilerplate record categories (permanent records kept indefinitely; current and storage records generally less than 10 years) with no specific ALPR schedule",
+      "Policy does not say whether NCRIC partner agencies include federal or out-of-state agencies; the California court order or warrant rule applies to SFPD's own sharing",
+      "The amended text says SFPD may host data with 'any other vendor' without naming one",
+      "Amended Appendix A says authorized uses include investigations by 'local, state, federal, and regional' departments, while the main policy text says 'local, state and regional'",
+      "The amended policy's annual evaluation measures are blank",
+      "No access-log or audit requirement is stated",
+      "Amended document is an unclean redline (merged words such as 'NCRICNCRIC' and 'hostsDepartment') and carries no visible approval date; 2021 policy dates: COIT January 21, 2021, Board of Supervisors August 4, 2021",
+      "'ALPR does not collect PII' is a policy assertion; plate and vehicle images are used to find specific people"
+    ],
+    "quote": "SFPD defers to the NCRIC retention standard: ALPR records are maintained for 12 months from capture.",
+    "quote_location": "sfpd_alpr.txt ~lines 328-330 (2021 Data Retention); same in sfpd_alpr_amend.txt ~lines 329-331",
+    "quote_amended_sharing": "shall not be sold, shared, or transferred to out-of-state or federal agencies without a court order or warrant issued by a California court",
+    "quote_amended_sharing_location": "sfpd_alpr_amend.txt ~lines 56-57 (Policy Statement; amended version only)",
+    "confidence": "high",
+    "source_notes": "Retention is identical in the 2021 policy (sfpd_alpr.txt) and the amended policy (sfpd_alpr_amend.txt); the amendment does not change the 12 month / 5 year values. The amendment adds the California Civil Code 1798.90.55 sharing limits, vendor hosting beyond NCRIC, and a Compliance appendix."
+  }
+]
